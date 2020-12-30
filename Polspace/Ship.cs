@@ -2,17 +2,13 @@
 
 namespace Polspace
 {
-    public class Ship
+    public class Ship : PhysicalPart
     {
-        public bool IsDestroyed { get; set; }
-        public double Mass => FuelContainer.Mass + MainEngine.Type.Mass + 1000; // [kg]
-        public Vector Size { get; } // [m]
-        public Vector Position { get; internal set; }
-        public Vector Velocity { get; internal set;} // [m/s^2]
-        public double Rotation { get; internal set;} // [r]
-        public double RotationVelocity { get; internal set;} // [r/s]
+        public override double Mass => FuelContainer.Mass + MainEngine.Type.Mass + LeftEngine.Type.Mass + RightEngine.Type.Mass + 1000; // [kg]
         public FuelContainer FuelContainer { get; }
         public Engine MainEngine { get; }
+        public Engine LeftEngine { get; }
+        public Engine RightEngine { get; }
 
         public Ship(Vector position)
         {
@@ -21,6 +17,8 @@ namespace Polspace
             Size = Vector.New(2, 5);
             FuelContainer = new FuelContainer(FuelContainerType.Standard);
             MainEngine = new Engine(EngineType.Main);
+            LeftEngine = new Engine(EngineType.Side);
+            RightEngine = new Engine(EngineType.Side);
         }
     }
 }

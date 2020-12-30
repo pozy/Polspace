@@ -4,6 +4,8 @@ namespace Polspace
 {
     public class GameState
     {
+        public static Vector Gravity => Vector.New(0, -1);
+
         public Ship Ship { get; }
 
         public GameState()
@@ -13,24 +15,24 @@ namespace Polspace
 
         public void Update(double time)
         {
-            var acceleration = Vector.New(0, -1);
+            Ship.ApplyForce(Gravity * Ship.Mass, Vector.Zero);
             if (Ship.MainEngine.IsOn)
             {
                 var fuelLoss = Ship.MainEngine.Type.MaxThrust / Ship.MainEngine.Type.SpecificImpulse * time;
-                var shipAcceleration = Vector.New(0, Ship.MainEngine.Type.MaxThrust) / Ship.Mass;
+                var engineForce = Ship.MainEngine.Type.MaxThrust;
                 if (Ship.FuelContainer.Fuel >= fuelLoss)
                     Ship.FuelContainer.Fuel -= fuelLoss;
                 else
                 {
                     Ship.FuelContainer.Fuel = 0;
-                    shipAcceleration *= Ship.FuelContainer.Fuel / fuelLoss;
+                    engineForce *= Ship.FuelContainer.Fuel / fuelLoss;
                     Ship.MainEngine.IsOn = false;
                 }
-                acceleration += shipAcceleration;
+
+                Ship.ApplyForce(new Vector(0, engineForce), Vector.Zero);
             }
 
-            Ship.Velocity += acceleration * time;
-            Ship.Position += Ship.Velocity * time;
+            Ship.Update(time);
             if (Ship.Position.Y - Ship.Size.Y / 2 < 0)
             {
                 Ship.Position = Vector.New(Ship.Position.X, Ship.Size.Y / 2);
