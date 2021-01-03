@@ -1,4 +1,5 @@
-﻿using Math;
+﻿using System;
+using Math;
 
 namespace Polspace
 {
@@ -13,7 +14,7 @@ namespace Polspace
             Ship = new Ship(Vector.New(0, 80));
         }
 
-        public void Update(double time)
+        public void UpdateFrame(double time)
         {
             Ship.ApplyForce(Gravity * Ship.Mass, Vector.Zero);
             if (Ship.MainEngine.IsOn)
@@ -32,14 +33,46 @@ namespace Polspace
                 Ship.ApplyForce(new Vector(0, engineForce), Vector.Zero);
             }
 
-            Ship.Update(time);
-            if (Ship.Position.Y - Ship.Size.Y / 2 < 0)
+            var depth = Ship.Position.Y - Ship.Size.Y / 2;
+            if (depth < 0)
             {
-                Ship.Position = Vector.New(Ship.Position.X, Ship.Size.Y / 2);
-                if (System.Math.Abs(Ship.Velocity.Y) > 2)
-                    Ship.IsDestroyed = true;
-                Ship.Velocity = Vector.Zero;
+                var bounceForceCoefficient = 10e6;// [kg/s^2]
+                var rebounceForceCoefficient = 10e5; // 20000; // [kg/s^2]
+                var coefficient = Ship.Velocity.Y < 0 ? bounceForceCoefficient : rebounceForceCoefficient;
+                Ship.ApplyForce(Vector.New(0, -coefficient * depth), Vector.Zero);
             }
+            Ship.Update(time);
+        }
+
+        private double _destTime = 0;
+        private double _currentTime = 0;
+
+        public void Update(double time)
+        {
+            _destTime += time;
+            var velocity = Ship.Velocity.GetLength();
+            var distance = System.Math.Abs(Ship.Position.Y);
+            var frameDuration = CalculateFrameDuration(distance, velocity);
+            while (_currentTime < _destTime)
+            {
+                UpdateFrame(frameDuration);
+                _currentTime += frameDuration;
+            }
+        }
+
+        private static double CalculateFrameDuration(double distance, double velocity)
+        {
+            int frameTimePrecision;
+            if (distance > 1_000_000)
+                frameTimePrecision = 0;
+            else if (distance > 1000)
+                frameTimePrecision = 10;
+            else if (velocity < 1000)
+                frameTimePrecision = 20;
+            else
+                frameTimePrecision = 27;
+            var frameDuration = 1.0 / System.Math.Pow(2.0, frameTimePrecision);
+            return frameDuration;
         }
     }
 }

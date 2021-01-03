@@ -1,4 +1,5 @@
-﻿using Math;
+﻿using System.Globalization;
+using Math;
 using SFML.Graphics;
 using SFML.System;
 
@@ -6,9 +7,23 @@ namespace Polspace
 {
     public class GameRenderer
     {
+        private readonly Font _font;
+        public GameRenderer()
+        {
+            _font = new Font("Content/arial.ttf");
+        }
         public void Render(GameState gameState, RenderWindow window, Camera camera)
         {
             window.Clear();
+
+            var groundPositionOnScreen = camera.ToScreenPosition(Vector.Zero);
+            var groundShape = new RectangleShape
+            {
+                Position = new Vector2f(0, groundPositionOnScreen.Y),
+                Size = new Vector2f(window.Size.X, window.Size.Y - groundPositionOnScreen.Y),
+                FillColor = new Color(127,127,127)
+            };
+            window.Draw(groundShape);
 
             var shipSizeOnScreen = camera.ToScreenSize(gameState.Ship.Size);
             var shipPositionOnScreen = camera.ToScreenPosition(gameState.Ship.Position);
@@ -34,14 +49,13 @@ namespace Polspace
                 window.Draw(engineShape);
             }
 
-            var groundPositionOnScreen = camera.ToScreenPosition(Vector.Zero);
-            var groundShape = new RectangleShape
+            var accelerationString = gameState.Ship.Acceleration.Y.ToString(CultureInfo.InvariantCulture);
+            var statsTextShape = new Text(accelerationString, _font)
             {
-                Position = new Vector2f(0, groundPositionOnScreen.Y),
-                Size = new Vector2f(window.Size.X, window.Size.Y - groundPositionOnScreen.Y),
-                FillColor = new Color(127,127,127)
+                Position = new Vector2f(10,10),
+                FillColor = Color.White
             };
-            window.Draw(groundShape);
+            window.Draw(statsTextShape);
         }
     }
 }

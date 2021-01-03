@@ -5,12 +5,14 @@ namespace Polspace
 {
     public class PhysicalPart
     {
+        public double MaxAcceleration { get; protected set; } // [m/s^2]
         public bool IsDestroyed { get; set; }
         public virtual double Mass { get; } // [kg]
         public Vector Size { get; protected set; } // [m]
-        public Vector Position { get; internal set; } // [m]
-        public Vector Velocity { get; internal set; } // [m/s]
+        public Vector Position { get; protected set; } // [m]
+        public Vector Velocity { get; private set; } // [m/s]
         public Vector Acceleration { get; private set; } // [m/s^2]
+        private Vector _currentAcceleration; // [m/s^2]
         public double Rotation { get; private set; } // [r]
         public double RotationVelocity { get; private set; } // [r/s]
         public double RotationAcceleration { get; private set; } // [r/s^2]
@@ -19,7 +21,7 @@ namespace Polspace
         {
             if (force.X == 0 && targetPosition.X == 0)
             {
-                Acceleration += force / Mass;
+                _currentAcceleration += force / Mass;
             }
             else
                 throw new ArgumentException();
@@ -27,9 +29,12 @@ namespace Polspace
 
         public void Update(double time)
         {
-            Velocity += Acceleration * time;
+            Velocity += _currentAcceleration * time;
             Position += Velocity * time;
-            Acceleration = Vector.Zero;
+            if (_currentAcceleration.GetLength() > MaxAcceleration)
+                IsDestroyed = true;
+            Acceleration = _currentAcceleration;
+            _currentAcceleration = Vector.Zero;
             RotationAcceleration = 0;
         }
     }

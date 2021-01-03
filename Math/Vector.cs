@@ -14,6 +14,7 @@ namespace Math
         }
 
         public static Vector Zero => new Vector(0, 0);
+        public double GetLength() => System.Math.Sqrt(X * X + Y * Y);
 
         public static Vector New(double x, double y) => new Vector(x, y);
 

@@ -2,7 +2,7 @@
 {
     public class EngineType
     {
-        public double Mass { get;  } // [kg]
+        public double Mass { get; } // [kg]
         public double MaxThrust { get;  } // [kg*m/s^2]
         public double SpecificImpulse { get;  } // [m/s]
 
@@ -13,7 +13,7 @@
             SpecificImpulse = specificImpulse;
         }
 
-        public static EngineType Main => new(200, 3000, 50);
+        public static EngineType Main => new(200, 2000, 50);
         public static EngineType Side => new(50, 300, 150);
     }
 }

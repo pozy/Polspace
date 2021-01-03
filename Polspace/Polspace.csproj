@@ -11,4 +11,9 @@
   <ItemGroup>
     <ProjectReference Include="..\Math\Math.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <None Update="Content\*">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
 </Project>

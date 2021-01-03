@@ -10,6 +10,6 @@
             MaxFuel = maxFuel;
         }
 
-        public static FuelContainerType Standard = new(100, 800);
+        public static readonly FuelContainerType Standard = new(100, 800);
     }
 }

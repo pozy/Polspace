@@ -15,7 +15,7 @@ namespace Polspace
             var renderer = new GameRenderer();
             var camera = new Camera(window, Vector.New(0, 40));
             camera.Zoom = 0.01f;
-            var cameraSpeed = 1.5; // units per second
+            var cameraSpeed = 10; // units per second
             var gameTime = new GameTimeTicker();
             window.Closed += (sender, args) => window.Close();
             var isPaused = true;
@@ -24,7 +24,6 @@ namespace Polspace
                 if (args.Code == Keyboard.Key.P)
                     isPaused = !isPaused;
             };
-
             while (window.IsOpen)
             {
                 var frameDuration = gameTime.Tick();
