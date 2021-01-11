@@ -1,24 +1,21 @@
-﻿using Math;
+﻿using Physics;
 
 namespace Polspace
 {
-    public class Ship : PhysicalPart
+    public class Ship : BoxBody
     {
-        public override double Mass => FuelContainer.Mass + MainEngine.Type.Mass + LeftEngine.Type.Mass + RightEngine.Type.Mass + 100; // [kg]
         public FuelContainer FuelContainer { get; }
         public Engine MainEngine { get; }
         public Engine LeftEngine { get; }
         public Engine RightEngine { get; }
 
         public Ship(Vector position)
+            : base(position, Vector.New(2, 5), 0, 1200, 100)
         {
-            Position = position;
-            Size = Vector.New(2, 5);
             FuelContainer = new FuelContainer(FuelContainerType.Standard);
             MainEngine = new Engine(EngineType.Main);
             LeftEngine = new Engine(EngineType.Side);
             RightEngine = new Engine(EngineType.Side);
-            MaxAcceleration = 100;
         }
     }
 }

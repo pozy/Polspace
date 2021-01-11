@@ -1,5 +1,4 @@
-﻿using System.Globalization;
-using Math;
+﻿using Physics;
 using SFML.Graphics;
 using SFML.System;
 
@@ -7,55 +6,71 @@ namespace Polspace
 {
     public class GameRenderer
     {
-        private readonly Font _font;
+        private readonly ConvexShape _engineShape;
+        private readonly RectangleShape _groundShape;
+        private readonly RectangleShape _shipShape;
+        private readonly Text _accTextShape;
+        private readonly Text _framesTextShape;
+
         public GameRenderer()
         {
-            _font = new Font("Content/arial.ttf");
+            var font = new Font("Content/arial.ttf");
+
+            _groundShape = new RectangleShape
+            {
+                FillColor = new Color(127,127,127)
+            };
+
+            _shipShape = new RectangleShape();
+
+            _engineShape = new ConvexShape(3)
+            {
+                FillColor = Color.Red
+            };
+
+            _accTextShape = new Text("acc:", font)
+            {
+                Position = new Vector2f(10,10),
+                FillColor = Color.White
+            };
+
+            _framesTextShape = new Text("frames:", font)
+            {
+                Position = new Vector2f(10,40),
+                FillColor = Color.White
+            };
         }
         public void Render(GameState gameState, RenderWindow window, Camera camera)
         {
             window.Clear();
 
             var groundPositionOnScreen = camera.ToScreenPosition(Vector.Zero);
-            var groundShape = new RectangleShape
-            {
-                Position = new Vector2f(0, groundPositionOnScreen.Y),
-                Size = new Vector2f(window.Size.X, window.Size.Y - groundPositionOnScreen.Y),
-                FillColor = new Color(127,127,127)
-            };
-            window.Draw(groundShape);
+            _groundShape.Position = new Vector2f(0, groundPositionOnScreen.Y);
+            _groundShape.Size = new Vector2f(window.Size.X, window.Size.Y - groundPositionOnScreen.Y);
+            window.Draw(_groundShape);
 
             var shipSizeOnScreen = camera.ToScreenSize(gameState.Ship.Size);
             var shipPositionOnScreen = camera.ToScreenPosition(gameState.Ship.Position);
-            var shipShape = new RectangleShape
-            {
-                Size = shipSizeOnScreen,
-                Origin = shipSizeOnScreen / 2,
-                FillColor = gameState.Ship.IsDestroyed ? new Color(255, 127, 0) : Color.White,
-                Position = shipPositionOnScreen
-            };
-            window.Draw(shipShape);
+            _shipShape.Size = shipSizeOnScreen;
+            _shipShape.Origin = shipSizeOnScreen / 2;
+            _shipShape.FillColor = gameState.Ship.IsDestroyed ? new Color(255, 127, 0) : Color.White;
+            _shipShape.Position = shipPositionOnScreen;
+            window.Draw(_shipShape);
 
             if (gameState.Ship.MainEngine.IsOn)
             {
-                var engineShape = new ConvexShape(3)
-                {
-                    Position = shipPositionOnScreen + new Vector2f(0, shipSizeOnScreen.Y / 2),
-                    FillColor = Color.Red
-                };
-                engineShape.SetPoint(0, new Vector2f(-shipSizeOnScreen.X / 2, 0));
-                engineShape.SetPoint(1, new Vector2f(shipSizeOnScreen.X / 2, 0));
-                engineShape.SetPoint(2, new Vector2f(0, shipSizeOnScreen.X));
-                window.Draw(engineShape);
+                _engineShape.Position = shipPositionOnScreen + new Vector2f(0, shipSizeOnScreen.Y / 2);
+                _engineShape.SetPoint(0, new Vector2f(-shipSizeOnScreen.X / 2, 0));
+                _engineShape.SetPoint(1, new Vector2f(shipSizeOnScreen.X / 2, 0));
+                _engineShape.SetPoint(2, new Vector2f(0, shipSizeOnScreen.X));
+                window.Draw(_engineShape);
             }
-
-            var accelerationString = gameState.Ship.Acceleration.Y.ToString(CultureInfo.InvariantCulture);
-            var statsTextShape = new Text(accelerationString, _font)
-            {
-                Position = new Vector2f(10,10),
-                FillColor = Color.White
-            };
-            window.Draw(statsTextShape);
+            
+            _accTextShape.DisplayedString = "acc: " + gameState.Ship.Force.Y / gameState.Ship.Mass;
+            window.Draw(_accTextShape);
+            
+            _framesTextShape.DisplayedString = "frames " + gameState.Frames;
+            window.Draw(_framesTextShape);
         }
     }
 }

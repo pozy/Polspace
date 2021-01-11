@@ -1,5 +1,5 @@
 ﻿using System;
-using Math;
+using Physics;
 using SFML.Graphics;
 using SFML.Window;
 
@@ -17,9 +17,9 @@ namespace Polspace
             camera.Zoom = 0.01f;
             var cameraSpeed = 10; // units per second
             var gameTime = new GameTimeTicker();
-            window.Closed += (sender, args) => window.Close();
+            window.Closed += (_, _) => window.Close();
             var isPaused = true;
-            window.KeyPressed += (sender, args) =>
+            window.KeyPressed += (_, args) =>
             {
                 if (args.Code == Keyboard.Key.P)
                     isPaused = !isPaused;

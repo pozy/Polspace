@@ -1,4 +1,4 @@
-﻿using Math;
+﻿using Physics;
 using SFML.System;
 using SFML.Window;
 

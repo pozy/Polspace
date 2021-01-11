@@ -1,30 +1,37 @@
-﻿using System;
-using Math;
+﻿using Physics;
 
 namespace Polspace
 {
     public class GameState
     {
+        public int Frames { get; private set; }
         public static Vector Gravity => Vector.New(0, -1);
 
         public Ship Ship { get; }
+        public GroundBody Ground { get; }
 
         public GameState()
         {
             Ship = new Ship(Vector.New(0, 80));
+            Ground = new GroundBody();
         }
 
         public void UpdateFrame(double time)
         {
-            Ship.ApplyForce(Gravity * Ship.Mass, Vector.Zero);
+            Frames++;
+            Ship.ApplyForce(Gravity * Ship.Mass);
             if (Ship.MainEngine.IsOn)
             {
                 var fuelLoss = Ship.MainEngine.Type.MaxThrust / Ship.MainEngine.Type.SpecificImpulse * time;
                 var engineForce = Ship.MainEngine.Type.MaxThrust;
                 if (Ship.FuelContainer.Fuel >= fuelLoss)
+                {
                     Ship.FuelContainer.Fuel -= fuelLoss;
+                    Ship.Mass -= fuelLoss;
+                }
                 else
                 {
+                    Ship.Mass -= Ship.FuelContainer.Fuel;
                     Ship.FuelContainer.Fuel = 0;
                     engineForce *= Ship.FuelContainer.Fuel / fuelLoss;
                     Ship.MainEngine.IsOn = false;
@@ -33,19 +40,24 @@ namespace Polspace
                 Ship.ApplyForce(new Vector(0, engineForce), Vector.Zero);
             }
 
-            var depth = Ship.Position.Y - Ship.Size.Y / 2;
-            if (depth < 0)
+            foreach (var point in Ship.Points)
             {
-                var bounceForceCoefficient = 10e6;// [kg/s^2]
-                var rebounceForceCoefficient = 10e5; // 20000; // [kg/s^2]
-                var coefficient = Ship.Velocity.Y < 0 ? bounceForceCoefficient : rebounceForceCoefficient;
-                Ship.ApplyForce(Vector.New(0, -coefficient * depth), Vector.Zero);
+                var toOutside = Ground.GetShortestVectorToOutside(point);
+                if (toOutside != Vector.Zero)
+                {
+                    var bounceForceCoefficient = 10e6; // [kg/s^2]
+                    var rebounceForceCoefficient = 10e5; // [kg/s^2]
+                    var isPointGoingInside = Vector.Dot(toOutside, Ship.Velocity) < 0;
+                    var coefficient = isPointGoingInside ? bounceForceCoefficient : rebounceForceCoefficient;
+                    Ship.ApplyForce(toOutside * coefficient, point);
+                }
             }
+
             Ship.Update(time);
         }
 
-        private double _destTime = 0;
-        private double _currentTime = 0;
+        private double _destTime;
+        private double _currentTime;
 
         public void Update(double time)
         {
