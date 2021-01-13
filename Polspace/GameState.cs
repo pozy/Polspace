@@ -37,12 +37,12 @@ namespace Polspace
                     Ship.MainEngine.IsOn = false;
                 }
 
-                Ship.ApplyForce(new Vector(0, engineForce), Vector.Zero);
+                Ship.ApplyForce(-engineForce * Vector.NewRotated(Ship.Angle), Vector.Zero);
             }
 
             foreach (var point in Ship.Points)
             {
-                var toOutside = Ground.GetShortestVectorToOutside(point);
+                var toOutside = Ground.GetShortestVectorToOutside(point + Ship.Position);
                 if (toOutside != Vector.Zero)
                 {
                     var bounceForceCoefficient = 10e6; // [kg/s^2]

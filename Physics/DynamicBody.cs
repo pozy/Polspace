@@ -50,7 +50,7 @@ namespace Physics
         public void ApplyForce(in Vector force, in Vector targetPosition)
         {
             _currentForce += force;
-            _currentTorque += Vector.Cross(targetPosition, force);
+            _currentTorque += Vector.Cross(force, targetPosition);
         }
 
         public void ApplyForce(Vector force)
@@ -68,7 +68,7 @@ namespace Physics
             Force = _currentForce;
             _currentForce = Vector.Zero;
 
-            AngularMomentum += Torque * time;
+            AngularMomentum += _currentTorque * time;
             Angle += AngularMomentum * time / MomentOfInertia;
             Torque = _currentTorque;
             _currentTorque = 0;

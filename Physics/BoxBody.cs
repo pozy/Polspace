@@ -28,18 +28,16 @@ namespace Physics
             var halvedSize = Size / 2;
             var rotated1 = _angleVector * halvedSize.Y;
             var rotated2 = _angle90Vector * halvedSize.X;
-            _points[0] = Position + rotated1 + rotated2;
-            _points[1] = Position + rotated1 - rotated2;
-            _points[2] = Position - rotated1 + rotated2;
-            _points[3] = Position - rotated1 - rotated2;
+            _points[0] = -rotated1 - rotated2;
+            _points[1] = -rotated1 + rotated2;
+            _points[2] = rotated1 + rotated2;
+            _points[3] = rotated1 - rotated2;
         }
 
         private void UpdateAngleVectors()
         {
-            var sin = System.Math.Sin(Angle);
-            var cos = System.Math.Cos(Angle);
-            _angleVector = Vector.New(sin, cos);
-            _angle90Vector = Vector.New(cos, -sin);
+            _angleVector = Vector.NewRotated(Angle);
+            _angle90Vector = Vector.New(_angleVector.Y, -_angleVector.X);
         }
 
         public override Vector GetShortestVectorToOutside(in Vector point)

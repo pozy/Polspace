@@ -10,7 +10,7 @@ namespace Polspace
         public Engine RightEngine { get; }
 
         public Ship(Vector position)
-            : base(position, Vector.New(2, 5), 0, 1200, 100)
+            : base(position, Vector.New(2, 5), 0.5, 1200, 100)
         {
             FuelContainer = new FuelContainer(FuelContainerType.Standard);
             MainEngine = new Engine(EngineType.Main);
