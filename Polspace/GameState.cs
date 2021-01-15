@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+﻿using System;
 using Physics;
 
 namespace Polspace
@@ -11,17 +11,20 @@ namespace Polspace
         public Ship Ship { get; }
         public GroundBody Ground { get; }
 
+        private readonly Engine[] _engines;
+
         public GameState()
         {
             Ship = new Ship(Vector.New(0, 80));
             Ground = new GroundBody();
+            _engines = new[] {Ship.MainEngine, Ship.RightEngine, Ship.LeftEngine};
         }
 
         private void UpdateFrame(double time)
         {
             Frames++;
             Ship.ApplyForce(Gravity * Ship.Mass);
-            ApplyEngines(time, new[] {Ship.MainEngine, Ship.RightEngine, Ship.LeftEngine});
+            ApplyEngines(time, _engines);
             foreach (var point in Ship.Points)
             {
                 var toOutside = Ground.GetShortestVectorToOutside(point + Ship.Position);
@@ -38,7 +41,7 @@ namespace Polspace
             Ship.Update(time);
         }
 
-        private void ApplyEngines(double time, IReadOnlyCollection<Engine> engines)
+        private void ApplyEngines(double time, ReadOnlySpan<Engine> engines)
         {
             var engineForceMultiplier = 1.0;
             var fuelLoss = 0.0;
@@ -88,7 +91,7 @@ namespace Polspace
         {
             _destTime += time;
             var velocity = Ship.Velocity.GetLength();
-            var distance = System.Math.Abs(Ship.Position.Y);
+            var distance = Math.Abs(Ship.Position.Y);
             var frameDuration = CalculateFrameDuration(distance, velocity);
             while (_currentTime < _destTime)
             {
@@ -108,7 +111,7 @@ namespace Polspace
                 frameTimePrecision = 20;
             else
                 frameTimePrecision = 27;
-            var frameDuration = 1.0 / System.Math.Pow(2.0, frameTimePrecision);
+            var frameDuration = 1.0 / Math.Pow(2.0, frameTimePrecision);
             return frameDuration;
         }
     }

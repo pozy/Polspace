@@ -54,7 +54,7 @@ namespace Polspace
             var shipPositionOnScreen = camera.ToScreenPosition(gameState.Ship.Position);
             _shipShape.Position = shipPositionOnScreen;
             _shipShape.FillColor = gameState.Ship.IsDestroyed ? new Color(255, 127, 0) : Color.White;
-            for (var i = 0; i < gameState.Ship.Points.Count; i++)
+            for (var i = 0; i < gameState.Ship.Points.Length; i++)
             {
                 var point = camera.ToScreenSize(gameState.Ship.Points[i]);
                 _shipShape.SetPoint((uint)i, point);
@@ -64,8 +64,8 @@ namespace Polspace
             if (gameState.Ship.MainEngine.IsOn)
             {
                 _engineShape.Position = shipPositionOnScreen;
-                _engineShape.Rotation = (float) (-gameState.Ship.Angle * 180 / Math.PI);
-                _engineShape.Origin = new Vector2f(0, -shipSizeOnScreen.Y / 2);
+                _engineShape.Rotation = (float) (gameState.Ship.Angle * 180 / Math.PI);
+                _engineShape.Origin = new Vector2f(0, shipSizeOnScreen.Y / 2);
                 _engineShape.SetPoint(0, new Vector2f(-shipSizeOnScreen.X / 2, 0));
                 _engineShape.SetPoint(1, new Vector2f(shipSizeOnScreen.X / 2, 0));
                 _engineShape.SetPoint(2, new Vector2f(0, shipSizeOnScreen.X));

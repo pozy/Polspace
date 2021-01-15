@@ -1,10 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using System;
 
 namespace Physics
 {
     public abstract class Body
     {
-        public abstract IReadOnlyList<Vector> Points { get; }
+        public abstract ReadOnlySpan<Vector> Points { get; }
 
         public abstract Vector GetShortestVectorToOutside(in Vector point);
 

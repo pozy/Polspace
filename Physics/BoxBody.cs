@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+﻿using System;
 
 namespace Physics
 {
@@ -11,7 +11,7 @@ namespace Physics
         private Vector _angle90Vector;
 
 
-        public override IReadOnlyList<Vector> Points => _points;
+        public override ReadOnlySpan<Vector> Points => _points;
 
         /// <inheritdoc />
         public BoxBody(Vector position, Vector size, double angle, double mass, double maxAcceleration = double.PositiveInfinity)
