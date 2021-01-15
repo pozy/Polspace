@@ -14,7 +14,7 @@ namespace Polspace
             var gameState = new GameState();
             var renderer = new GameRenderer();
             var camera = new Camera(window, Vector.New(0, 40));
-            camera.Zoom = 0.01f;
+            camera.Zoom = 7f;
             var cameraSpeed = 10; // units per second
             var gameTime = new GameTimeTicker();
             window.Closed += (_, _) => window.Close();
@@ -37,8 +37,19 @@ namespace Polspace
                     camera.Move(Vector.New(0, 1) * cameraSpeed * frameDuration);
                 if (Keyboard.IsKeyPressed(Keyboard.Key.Down))
                     camera.Move(Vector.New(0, -1) * cameraSpeed * frameDuration);
-                gameState.Ship.MainEngine.IsOn =
-                    !gameState.Ship.IsDestroyed && gameState.Ship.FuelContainer.Fuel > 0 && Keyboard.IsKeyPressed(Keyboard.Key.Space);
+                if (!gameState.Ship.IsDestroyed && gameState.Ship.FuelContainer.Fuel > 0)
+                {
+                    gameState.Ship.MainEngine.IsOn = Keyboard.IsKeyPressed(Keyboard.Key.W);
+                    gameState.Ship.RightEngine.IsOn = Keyboard.IsKeyPressed(Keyboard.Key.D);
+                    gameState.Ship.LeftEngine.IsOn = Keyboard.IsKeyPressed(Keyboard.Key.A);
+                }
+                else
+                {
+                    gameState.Ship.MainEngine.IsOn = false;
+                    gameState.Ship.RightEngine.IsOn = false;
+                    gameState.Ship.LeftEngine.IsOn = false;
+                }
+                
 
                 if (!isPaused)
                     gameState.Update(frameDuration);

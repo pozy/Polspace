@@ -20,13 +20,13 @@ namespace Polspace
         public Vector2f ToScreenPosition(Vector position)
         {
             var relativePosition = position - Position;
-            var screenCenter = (Vector2f)Screen.Size / 2;
-            return screenCenter + new Vector2f((float)relativePosition.X * Screen.Size.X, -(float)relativePosition.Y * Screen.Size.Y) * Zoom;
+            var screenCenter = (Vector2f) Screen.Size / 2;
+            return screenCenter + new Vector2f((float) relativePosition.X, (float) -relativePosition.Y) * Zoom;
         }
 
         public Vector2f ToScreenSize(Vector size)
         {
-            return new Vector2f((float) size.X * Screen.Size.X, (float) size.Y * Screen.Size.Y) * Zoom;
+            return new Vector2f((float) size.X, (float) -size.Y) * Zoom;
         }
 
         public void Move(Vector v)

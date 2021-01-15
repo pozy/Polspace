@@ -1,4 +1,5 @@
-﻿using Physics;
+﻿using System.Collections.Generic;
+using Physics;
 
 namespace Polspace
 {
@@ -16,30 +17,11 @@ namespace Polspace
             Ground = new GroundBody();
         }
 
-        public void UpdateFrame(double time)
+        private void UpdateFrame(double time)
         {
             Frames++;
             Ship.ApplyForce(Gravity * Ship.Mass);
-            if (Ship.MainEngine.IsOn)
-            {
-                var fuelLoss = Ship.MainEngine.Type.MaxThrust / Ship.MainEngine.Type.SpecificImpulse * time;
-                var engineForce = Ship.MainEngine.Type.MaxThrust;
-                if (Ship.FuelContainer.Fuel >= fuelLoss)
-                {
-                    Ship.FuelContainer.Fuel -= fuelLoss;
-                    Ship.Mass -= fuelLoss;
-                }
-                else
-                {
-                    Ship.Mass -= Ship.FuelContainer.Fuel;
-                    Ship.FuelContainer.Fuel = 0;
-                    engineForce *= Ship.FuelContainer.Fuel / fuelLoss;
-                    Ship.MainEngine.IsOn = false;
-                }
-
-                Ship.ApplyForce(-engineForce * Vector.NewRotated(Ship.Angle), Vector.Zero);
-            }
-
+            ApplyEngines(time, new[] {Ship.MainEngine, Ship.RightEngine, Ship.LeftEngine});
             foreach (var point in Ship.Points)
             {
                 var toOutside = Ground.GetShortestVectorToOutside(point + Ship.Position);
@@ -54,6 +36,49 @@ namespace Polspace
             }
 
             Ship.Update(time);
+        }
+
+        private void ApplyEngines(double time, IReadOnlyCollection<Engine> engines)
+        {
+            var engineForceMultiplier = 1.0;
+            var fuelLoss = 0.0;
+            foreach (var engine in engines)
+            {
+                if (engine.IsOn)
+                    fuelLoss += Ship.MainEngine.Type.MaxThrust / Ship.MainEngine.Type.SpecificImpulse;
+            }
+
+            if (fuelLoss == 0)
+                return;
+            fuelLoss *= time;
+            if (Ship.FuelContainer.Fuel >= fuelLoss)
+            {
+                Ship.FuelContainer.Fuel -= fuelLoss;
+                Ship.Mass -= fuelLoss;
+            }
+            else
+            {
+                Ship.Mass -= Ship.FuelContainer.Fuel;
+                Ship.FuelContainer.Fuel = 0;
+                engineForceMultiplier = Ship.FuelContainer.Fuel / fuelLoss;
+            }
+
+            var rotated = Vector.NewRotated(Ship.Angle);
+            if (Ship.MainEngine.IsOn)
+                Ship.ApplyForce(Ship.MainEngine.Type.MaxThrust * engineForceMultiplier * rotated,
+                    Vector.Zero);
+            if (Ship.RightEngine.IsOn)
+                Ship.ApplyForce(
+                    Ship.RightEngine.Type.MaxThrust * engineForceMultiplier * Vector.New(rotated.Y, -rotated.X),
+                    Ship.Points[0] - rotated);
+            if (Ship.LeftEngine.IsOn)
+                Ship.ApplyForce(
+                    Ship.LeftEngine.Type.MaxThrust * engineForceMultiplier * Vector.New(-rotated.Y, -rotated.X),
+                    Ship.Points[3] - rotated);
+
+            if (Ship.FuelContainer.Fuel == 0)
+                foreach (var engine in engines)
+                    engine.IsOn = false;
         }
 
         private double _destTime;

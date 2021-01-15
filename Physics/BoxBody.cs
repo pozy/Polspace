@@ -28,9 +28,9 @@ namespace Physics
             var halvedSize = Size / 2;
             var rotated1 = _angleVector * halvedSize.Y;
             var rotated2 = _angle90Vector * halvedSize.X;
-            _points[0] = -rotated1 - rotated2;
+            _points[0] = rotated1 + rotated2;
             _points[1] = -rotated1 + rotated2;
-            _points[2] = rotated1 + rotated2;
+            _points[2] = -rotated1 - rotated2;
             _points[3] = rotated1 - rotated2;
         }
 
