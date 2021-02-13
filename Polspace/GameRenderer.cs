@@ -61,7 +61,7 @@ namespace Polspace
             }
             window.Draw(_shipShape);
 
-            if (gameState.Ship.MainEngine.IsOn)
+            if (gameState.Ship.Engines[0].IsOn)
             {
                 _engineShape.Position = shipPositionOnScreen;
                 _engineShape.Rotation = (float) (gameState.Ship.Angle * 180 / Math.PI);

@@ -24,6 +24,7 @@ namespace Polspace
                 if (args.Code == Keyboard.Key.P)
                     isPaused = !isPaused;
             };
+            var lastRender = gameTime.LastFrameTime;
             while (window.IsOpen)
             {
                 var frameDuration = gameTime.Tick();
@@ -37,23 +38,18 @@ namespace Polspace
                     camera.Move(Vector.New(0, 1) * cameraSpeed * frameDuration);
                 if (Keyboard.IsKeyPressed(Keyboard.Key.Down))
                     camera.Move(Vector.New(0, -1) * cameraSpeed * frameDuration);
-                if (!gameState.Ship.IsDestroyed && gameState.Ship.FuelContainer.Fuel > 0)
-                {
-                    gameState.Ship.MainEngine.IsOn = Keyboard.IsKeyPressed(Keyboard.Key.W);
-                    gameState.Ship.RightEngine.IsOn = Keyboard.IsKeyPressed(Keyboard.Key.D);
-                    gameState.Ship.LeftEngine.IsOn = Keyboard.IsKeyPressed(Keyboard.Key.A);
-                }
-                else
-                {
-                    gameState.Ship.MainEngine.IsOn = false;
-                    gameState.Ship.RightEngine.IsOn = false;
-                    gameState.Ship.LeftEngine.IsOn = false;
-                }
-                
+                gameState.Ship.Engines[0].IsOn = Keyboard.IsKeyPressed(Keyboard.Key.W);
+                gameState.Ship.Engines[1].IsOn = Keyboard.IsKeyPressed(Keyboard.Key.D);
+                gameState.Ship.Engines[2].IsOn = Keyboard.IsKeyPressed(Keyboard.Key.A);
+
 
                 if (!isPaused)
                     gameState.Update(frameDuration);
-                renderer.Render(gameState, window, camera);
+                if (gameTime.LastFrameTime - (lastRender ?? 0) > 0.01)
+                {
+                    lastRender = gameTime.LastFrameTime;
+                    renderer.Render(gameState, window, camera);
+                }
 
                 window.Display();
             }

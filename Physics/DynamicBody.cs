@@ -24,13 +24,21 @@ namespace Physics
 
         public double MomentOfInertia { get; private set; } // [N*s, kg*m^2]
         public double Angle { get; private set; } // [rad]
+        public Vector AngleVector { get; private set; }
         public double AngularMomentum { get; private set; } // [N*m, kg*m^2/s]
         public double Torque { get; private set; } // [N*m/s, kg*m^2/s^2]
         private double _currentTorque;
         private double _mass;
 
 
-        protected DynamicBody(Vector position, double angle, double mass, double momentOfInertia, double maxAcceleration = double.PositiveInfinity)
+        protected DynamicBody(
+            Vector position, double angle,
+            double mass,
+            double momentOfInertia,
+            double bounceForceCoefficient,
+            double coefficientOfRestitution,
+            double maxAcceleration = double.PositiveInfinity)
+            : base(bounceForceCoefficient, coefficientOfRestitution)
         {
             if (angle < 0 || angle >= Math.PI * 2)
                 throw new ArgumentOutOfRangeException(nameof(angle), angle, @"Should be in range [0, 2*pi)");
@@ -47,10 +55,10 @@ namespace Physics
 
         protected abstract double CalculateMomentOfInertia();
 
-        public void ApplyForce(in Vector force, in Vector targetPosition)
+        public void ApplyForce(in Vector force, in Vector targetLocalPoint)
         {
             _currentForce += force;
-            _currentTorque += Vector.Cross(force, targetPosition);
+            _currentTorque += Vector.Cross(force, targetLocalPoint);
         }
 
         public void ApplyForce(Vector force)
@@ -70,6 +78,7 @@ namespace Physics
 
             AngularMomentum += _currentTorque * time;
             Angle += AngularMomentum * time / MomentOfInertia;
+            AngleVector = Vector.NewRotated(Angle);
             Torque = _currentTorque;
             _currentTorque = 0;
             Torque = 0;

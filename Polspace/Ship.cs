@@ -1,21 +1,30 @@
-﻿using Physics;
+﻿using System.Collections.Generic;
+using Physics;
 
 namespace Polspace
 {
     public class Ship : BoxBody
     {
         public FuelContainer FuelContainer { get; }
-        public Engine MainEngine { get; }
-        public Engine LeftEngine { get; }
-        public Engine RightEngine { get; }
+        public List<Engine> Engines { get; }
 
         public Ship(Vector position)
-            : base(position, Vector.New(2, 5), 0.5, 1200, 100)
+            : base(
+                position,
+                Vector.New(2, 5),
+                0.5,
+                1200,
+                10e6,
+                0.3,
+                100)
         {
             FuelContainer = new FuelContainer(FuelContainerType.Standard);
-            MainEngine = new Engine(EngineType.Main);
-            LeftEngine = new Engine(EngineType.Side);
-            RightEngine = new Engine(EngineType.Side);
+            Engines = new List<Engine>
+            {
+                new(EngineType.Main, this, Vector.New(0, 2), this),
+                new(EngineType.Side, this, Vector.New(1, 1), this),
+                new(EngineType.Side, this, Vector.New(-1, 1), this)
+            };
         }
     }
 }

@@ -7,13 +7,13 @@ namespace Physics
         public readonly double X;
         public readonly double Y;
 
-        public Vector(double x, double y)
+        private Vector(double x, double y)
         {
             X = x;
             Y = y;
         }
 
-        public static Vector Zero => new(0, 0);
+        public static Vector Zero { get; } = new(0, 0);
 
         public double GetLength() => Math.Sqrt(X * X + Y * Y);
 
