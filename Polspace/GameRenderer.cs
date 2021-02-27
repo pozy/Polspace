@@ -12,10 +12,11 @@ namespace Polspace
         private readonly ConvexShape _shipShape;
         private readonly Text _accTextShape;
         private readonly Text _framesTextShape;
+        public readonly Font? Font;
 
         public GameRenderer()
         {
-            var font = new Font("Content/arial.ttf");
+            Font = new Font("Content/arial.ttf");
 
             _groundShape = new RectangleShape
             {
@@ -29,13 +30,13 @@ namespace Polspace
                 FillColor = Color.Red
             };
 
-            _accTextShape = new Text("acc:", font)
+            _accTextShape = new Text("acc:", Font)
             {
                 Position = new Vector2f(10,10),
                 FillColor = Color.White
             };
 
-            _framesTextShape = new Text("frames:", font)
+            _framesTextShape = new Text("frames:", Font)
             {
                 Position = new Vector2f(10,40),
                 FillColor = Color.White

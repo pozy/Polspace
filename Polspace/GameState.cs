@@ -8,6 +8,7 @@ namespace Polspace
         public Ship Ship { get; }
 
         public int Frames => _world.Frames;
+        public double GameTime => _world.CurrentTime;
 
         public GameState()
         {

@@ -4,14 +4,14 @@ namespace Polspace
 {
     public class GameTimeTicker
     {
-        public double? LastFrameTime { get; private set; }
+        private double? _lastFrameTime;
         private static readonly double Frequency = Stopwatch.Frequency;
 
         public double Tick()
         {
             var currentFrameTime = Stopwatch.GetTimestamp() / Frequency;
-            var frameDuration = currentFrameTime - LastFrameTime ?? currentFrameTime;
-            LastFrameTime = currentFrameTime;
+            var frameDuration = currentFrameTime - (_lastFrameTime ?? currentFrameTime);
+            _lastFrameTime = currentFrameTime;
             return frameDuration;
         }
     }

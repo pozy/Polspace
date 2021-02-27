@@ -52,7 +52,7 @@ namespace Physics
         }
 
         private double _destTime;
-        private double _currentTime;
+        public double CurrentTime;
 
         public void Update(double time)
         {
@@ -61,10 +61,10 @@ namespace Physics
             var velocity = ship.Velocity.GetLength();
             var distance = Math.Abs(ship.Position.Y);
             var frameDuration = CalculateFrameDuration(distance, velocity);
-            while (_currentTime < _destTime)
+            while (CurrentTime < _destTime)
             {
                 UpdateFrame(frameDuration);
-                _currentTime += frameDuration;
+                CurrentTime += frameDuration;
             }
         }
 
