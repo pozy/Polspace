@@ -49,18 +49,18 @@ namespace Polspace
             var realTime = 0.0;
             while (window.IsOpen)
             {
-                var realTimeFrameDuration = UpdateGameState(realTimeTicker, gameState);
-                realTime += realTimeFrameDuration;
+                var actualRealTimeFrameDuration = UpdateGameState(gameState, realTimeTicker, 1.0 / 60);
+                realTime += actualRealTimeFrameDuration;
 
                 window.DispatchEvents();
                 if (Keyboard.IsKeyPressed(Keyboard.Key.Right))
-                    camera.Move(Vector.New(1, 0) * cameraSpeed * realTimeFrameDuration);
+                    camera.Move(Vector.New(1, 0) * cameraSpeed * actualRealTimeFrameDuration);
                 if (Keyboard.IsKeyPressed(Keyboard.Key.Left))
-                    camera.Move(Vector.New(-1, 0) * cameraSpeed * realTimeFrameDuration);
+                    camera.Move(Vector.New(-1, 0) * cameraSpeed * actualRealTimeFrameDuration);
                 if (Keyboard.IsKeyPressed(Keyboard.Key.Up))
-                    camera.Move(Vector.New(0, 1) * cameraSpeed * realTimeFrameDuration);
+                    camera.Move(Vector.New(0, 1) * cameraSpeed * actualRealTimeFrameDuration);
                 if (Keyboard.IsKeyPressed(Keyboard.Key.Down))
-                    camera.Move(Vector.New(0, -1) * cameraSpeed * realTimeFrameDuration);
+                    camera.Move(Vector.New(0, -1) * cameraSpeed * actualRealTimeFrameDuration);
                 gameState.Ship.Engines[0].IsOn = Keyboard.IsKeyPressed(Keyboard.Key.W);
                 gameState.Ship.Engines[1].IsOn = Keyboard.IsKeyPressed(Keyboard.Key.D);
                 gameState.Ship.Engines[2].IsOn = Keyboard.IsKeyPressed(Keyboard.Key.A);
@@ -80,16 +80,14 @@ namespace Polspace
             }
         }
 
-        private static double UpdateGameState(GameTimeTicker realTimeTicker, GameState gameState)
+        private static double UpdateGameState(GameState gameState, GameTimeTicker realTimeTicker, double requestedRealTimeFrameDuration)
         {
             var realTime = 0.0;
-            while (realTime < 1.0 / 60)
+            while (realTime < requestedRealTimeFrameDuration)
             {
                 var realTimeFrameDuration = realTimeTicker.Tick();
                 realTime += realTimeFrameDuration;
-
-                var gameTimeFrameDuration = Math.Min(realTimeFrameDuration, 1.0 / 180);
-
+                var gameTimeFrameDuration = Math.Min(realTimeFrameDuration, requestedRealTimeFrameDuration / 3);
                 gameState.Update(gameTimeFrameDuration);
             }
             
