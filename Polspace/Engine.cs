@@ -23,12 +23,12 @@ namespace Polspace
         /// <inheritdoc />
         public override double Force => IsOn ? Type.MaxThrust : 0;
 
-        public Engine(
-            EngineType type,
+        public Engine(EngineType type,
             DynamicBody attachedTo,
             Vector attachmentPoint,
+            double attachmentAngle,
             Ship connectedShip)
-            : base(attachedTo, attachmentPoint)
+            : base(attachedTo, attachmentPoint, attachmentAngle)
         {
             Type = type;
             ConnectedShip = connectedShip;

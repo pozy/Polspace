@@ -4,8 +4,7 @@ namespace Physics
 {
     public abstract class DynamicBody : Body
     {
-        public double MaxAcceleration { get; } // [m/s^2]
-        public bool IsDestroyed { get; private set; }
+        public Vector Acceleration { get; private set; } // [m/s^2]
 
         public double Mass // [kg]
         {
@@ -30,27 +29,23 @@ namespace Physics
         private double _currentTorque;
         private double _mass;
 
-
         protected DynamicBody(
-            Vector position, double angle,
+            Vector position,
+            double angle,
             double mass,
             double momentOfInertia,
             double bounceForceCoefficient,
-            double coefficientOfRestitution,
-            double maxAcceleration = double.PositiveInfinity)
+            double coefficientOfRestitution)
             : base(bounceForceCoefficient, coefficientOfRestitution)
         {
             if (angle < 0 || angle >= Math.PI * 2)
                 throw new ArgumentOutOfRangeException(nameof(angle), angle, @"Should be in range [0, 2*pi)");
             if (momentOfInertia < 0.1)
                 throw new ArgumentOutOfRangeException(nameof(momentOfInertia), momentOfInertia, @"Should be no less than 0.1");
-            if (maxAcceleration < 0.1)
-                throw new ArgumentOutOfRangeException(nameof(mass), mass, @"Should be no less than 0.1");
             Position = position;
             Angle = angle;
             Mass = mass;
             MomentOfInertia = momentOfInertia;
-            MaxAcceleration = maxAcceleration;
         }
 
         protected abstract double CalculateMomentOfInertia();
@@ -68,11 +63,9 @@ namespace Physics
 
         public override void Update(in double time)
         {
-            var acceleration = _currentForce / Mass;
-            Velocity += acceleration * time;
+            Acceleration = _currentForce / Mass;
+            Velocity += Acceleration * time;
             Position += Velocity * time;
-            if (acceleration.GetLength() > MaxAcceleration)
-                IsDestroyed = true;
             Force = _currentForce;
             _currentForce = Vector.Zero;
 

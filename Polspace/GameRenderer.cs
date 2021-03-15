@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Physics;
 using SFML.Graphics;
 using SFML.System;
@@ -7,15 +8,16 @@ namespace Polspace
 {
     public class GameRenderer
     {
-        private readonly ConvexShape _engineShape;
+        private readonly List<ConvexShape> _engineShape;
         private readonly RectangleShape _groundShape;
-        private readonly ConvexShape _shipShape;
-        private readonly Text _accTextShape;
+        private readonly RectangleShape _shipShape;
         private readonly Text _framesTextShape;
         public readonly Font? Font;
+        private readonly GameState _gameState;
 
-        public GameRenderer()
+        public GameRenderer(GameState gameState)
         {
+            _gameState = gameState;
             Font = new Font("Content/arial.ttf");
 
             _groundShape = new RectangleShape
@@ -23,18 +25,20 @@ namespace Polspace
                 FillColor = new Color(127,127,127)
             };
 
-            _shipShape = new ConvexShape(4);
+            _shipShape = new RectangleShape();
 
-            _engineShape = new ConvexShape(3)
+            _engineShape = new List<ConvexShape>();
+            for (var i = 0; i < 3; i++)
             {
-                FillColor = Color.Red
-            };
-
-            _accTextShape = new Text("acc:", Font)
-            {
-                Position = new Vector2f(10,10),
-                FillColor = Color.White
-            };
+                var engineShape = new ConvexShape(3)
+                {
+                    FillColor = Color.Red
+                };
+                engineShape.SetPoint(0, new Vector2f(-1, 0));
+                engineShape.SetPoint(1, new Vector2f(1, 0));
+                engineShape.SetPoint(2, new Vector2f(0, 2));
+                _engineShape.Add(engineShape);
+            }
 
             _framesTextShape = new Text("frames:", Font)
             {
@@ -42,7 +46,8 @@ namespace Polspace
                 FillColor = Color.White
             };
         }
-        public void Render(GameState gameState, RenderWindow window, Camera camera)
+        
+        public void Render(RenderWindow window, Camera camera)
         {
             window.Clear();
 
@@ -50,33 +55,28 @@ namespace Polspace
             _groundShape.Position = new Vector2f(0, groundPositionOnScreen.Y);
             _groundShape.Size = new Vector2f(window.Size.X, window.Size.Y - groundPositionOnScreen.Y);
             window.Draw(_groundShape);
-
-            var shipSizeOnScreen = camera.ToScreenSize(gameState.Ship.Size);
-            var shipPositionOnScreen = camera.ToScreenPosition(gameState.Ship.Position);
+            
+            var shipPositionOnScreen = camera.ToScreenPosition(_gameState.Ship.Position);
+            _shipShape.Size = camera.ToScreenSize(Vector.New(2, 5));
             _shipShape.Position = shipPositionOnScreen;
-            _shipShape.FillColor = gameState.Ship.IsDestroyed ? new Color(255, 127, 0) : Color.White;
-            for (var i = 0; i < gameState.Ship.Points.Length; i++)
-            {
-                var point = camera.ToScreenSize(gameState.Ship.Points[i]);
-                _shipShape.SetPoint((uint)i, point);
-            }
+            _shipShape.Origin = camera.ToScreenSize(Vector.New(2, 5) / 2);
+            _shipShape.FillColor = _gameState.Ship.IsDestroyed ? new Color(255, 127, 0) : Color.White;
+            _shipShape.Rotation = (float) (_gameState.Ship.Angle * 180 / Math.PI);
             window.Draw(_shipShape);
 
-            if (gameState.Ship.Engines[0].IsOn)
+            for (var i = 0; i < _gameState.Ship.Engines.Count; i++)
             {
-                _engineShape.Position = shipPositionOnScreen;
-                _engineShape.Rotation = (float) (gameState.Ship.Angle * 180 / Math.PI);
-                _engineShape.Origin = new Vector2f(0, shipSizeOnScreen.Y / 2);
-                _engineShape.SetPoint(0, new Vector2f(-shipSizeOnScreen.X / 2, 0));
-                _engineShape.SetPoint(1, new Vector2f(shipSizeOnScreen.X / 2, 0));
-                _engineShape.SetPoint(2, new Vector2f(0, shipSizeOnScreen.X));
-                window.Draw(_engineShape);
+                var shipEngine = _gameState.Ship.Engines[i];
+                if (!shipEngine.IsOn)
+                    continue;
+                var engineShape = _engineShape[i];
+                engineShape.Position = camera.ToScreenPosition(shipEngine.RotatedAttachmentPoint + _gameState.Ship.Position);
+                engineShape.Rotation = (float) ((shipEngine.AttachmentAngle + _gameState.Ship.Angle) * 180 / Math.PI);
+                engineShape.Scale = new Vector2f(camera.Zoom, camera.Zoom);
+                window.Draw(engineShape);
             }
             
-            _accTextShape.DisplayedString = "acc: " + gameState.Ship.Force.Y / gameState.Ship.Mass;
-            window.Draw(_accTextShape);
-            
-            _framesTextShape.DisplayedString = "frames " + gameState.Frames;
+            _framesTextShape.DisplayedString = "frames " + _gameState.Frames;
             window.Draw(_framesTextShape);
         }
     }

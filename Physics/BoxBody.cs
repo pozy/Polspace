@@ -17,16 +17,14 @@ namespace Physics
             double angle,
             double mass,
             double bounceForceCoefficient,
-            double coefficientOfRestitution,
-            double maxAcceleration = double.PositiveInfinity)
+            double coefficientOfRestitution)
             : base(
                 position,
                 angle,
                 mass,
                 CalculateMomentOfInertiaInternal(mass, size),
                 bounceForceCoefficient,
-                coefficientOfRestitution,
-                maxAcceleration)
+                coefficientOfRestitution)
         {
             Size = size;
             _points = new Vector[4];
