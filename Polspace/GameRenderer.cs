@@ -11,14 +11,25 @@ namespace Polspace
         private readonly List<ConvexShape> _engineShape;
         private readonly RectangleShape _groundShape;
         private readonly RectangleShape _shipShape;
-        private readonly Text _framesTextShape;
-        public readonly Font? Font;
+        private readonly Text _statsTextShape;
+
+        public string StatsText
+        {
+            get => _statsTextShape.DisplayedString;
+            set => _statsTextShape.DisplayedString = value;
+        }
         private readonly GameState _gameState;
 
         public GameRenderer(GameState gameState)
         {
             _gameState = gameState;
-            Font = new Font("Content/arial.ttf");
+
+            var font = new Font("Content/arial.ttf");
+            _statsTextShape = new Text("frames:", font)
+            {
+                Position = new Vector2f(10,10),
+                FillColor = Color.White
+            };
 
             _groundShape = new RectangleShape
             {
@@ -39,12 +50,6 @@ namespace Polspace
                 engineShape.SetPoint(2, new Vector2f(0, 2));
                 _engineShape.Add(engineShape);
             }
-
-            _framesTextShape = new Text("frames:", Font)
-            {
-                Position = new Vector2f(10,40),
-                FillColor = Color.White
-            };
         }
         
         public void Render(RenderWindow window, Camera camera)
@@ -76,8 +81,7 @@ namespace Polspace
                 window.Draw(engineShape);
             }
             
-            _framesTextShape.DisplayedString = "frames " + _gameState.Frames;
-            window.Draw(_framesTextShape);
+            window.Draw(_statsTextShape);
         }
     }
 }
